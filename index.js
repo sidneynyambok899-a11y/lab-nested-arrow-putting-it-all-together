@@ -1,30 +1,33 @@
+// Simple login tracker for lab
 function createLoginTracker(userInfo) {
-  let attemptCount = 0;
+  let attemptCount = 0;  // Start at 0
 
-  // Inner function (closure) that tracks login attempts
-  const attemptLogin = (passwordAttempt) => {
-    attemptCount++; // Increment on every attempt
+  // Return arrow function for login attempts
+  return (passwordAttempt) => {
+    attemptCount++;  // Add 1 each time
 
-    // Lock account after 3 failed attempts
     if (attemptCount > 3) {
-      return 'Account locked due to too many failed login attempts.';
-    }
-
-    // Successful login
-    if (passwordAttempt === userInfo.password) {
-      attemptCount = 0; // Reset counter on success
+      return 'Account locked due to too many failed login attempts';
+    } else if (passwordAttempt === userInfo.password) {
       return 'Login successful';
+    } else {
+      return `Attempt ${attemptCount}: Login failed`;
     }
-
-    // Failed attempt — show remaining attempts
-    const remaining = 3 - attemptCount;
-    return `Attempt ${attemptCount}: Login failed. ${remaining} attempt(s) remaining.`;
   };
-
-  return attemptLogin; // Return the function so it can be used later
 }
 
-// Proper export for Node.js/CommonJS
+// Test it out
+const user = { username: 'testuser', password: 'secret' };
+const login = createLoginTracker(user);
+
+console.log(login('wrong'));    // Attempt 1: Login failed
+console.log(login('secret'));   // Login successful
+console.log(login('wrong'));    // Attempt 1: Login failed (resets? wait no, attempts keep going)
+console.log(login('wrong'));    // Attempt 2: Login failed
+console.log(login('wrong'));    // Attempt 3: Login failed
+console.log(login('secret'));   // Account locked... (since attemptCount is now 5)
+
+
 module.exports = {
-  createLoginTracker
+  ...(typeof createLoginTracker !== 'undefined' && { createLoginTracker })
 };
